@@ -10,7 +10,10 @@ lastest Renewals : 2020/6/1
 # History
 
 ```
-21w22a
+2020
+
+June
+01 21w22a
 ```
 
 # Licence
