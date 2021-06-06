@@ -435,10 +435,6 @@ def identify(identification, password):
     i = 0
     try:
         while True:
-            print(identification, login_data[i][1])
-            print(identification == login_data[i][1])
-            print(password, login_data[i][2])
-            print(password == login_data[i][2])
             if identification == login_data[i][1]:
                 if password == login_data[i][2]:
                     input_log.name = login_data[i][0]
