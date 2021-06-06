@@ -4,7 +4,7 @@ import random
 import pygame
 from pygame.locals import *
 
-ver = "21w22c"
+ver = "21w23a"
 
 with open('data_package.csv') as file:
     csv_data = []
