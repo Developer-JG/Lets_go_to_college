@@ -3,27 +3,27 @@ import time
 import random
 import pygame
 from pygame.locals import *
+from numpy import dot
+from numpy.linalg import norm
+import numpy as np
 
-ver = "21w23a"
+ver = "21w23b"
 
-with open('data_package.csv') as file:
+with open("data_package.csv") as file:
     csv_data = []
     for line in file.readlines():
-        csv_data.append(line.split(','))
+        csv_data.append(line.split(","))
 
-with open('login_data.csv') as file:
+with open("login_data.csv") as file:
     login_data = []
     for line in file.readlines():
-        login_data.append(line.split(','))
+        login_data.append(line.split(","))
 
 
 class select:
-    def __init__(self, plag, name, value_1, value_2, value_3):
+    def __init__(self, plag, name):
         self.plag = plag
         self.name = name
-        self.value_1 = value_1
-        self.value_2 = value_2
-        self.value_3 = value_3
 
 
 pygame.init()
@@ -38,67 +38,308 @@ gray = (102, 102, 102)
 image = pygame.image.load("1024.png")
 image_1 = pygame.transform.scale(image, (420, 420))
 image_2 = pygame.transform.scale(image, (200, 200))
+image_3 = pygame.transform.scale(image, (150, 150))
 
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-font_input_L = pygame.font.Font('BinggraeTaom-Bold.ttf', 50)
-font_input_M = pygame.font.Font('BinggraeTaom-Bold.ttf', 35)
-font_input_S = pygame.font.Font('BinggraeTaom-Bold.ttf', 25)
-font_input_subscript = pygame.font.Font('BinggraeTaom-Bold.ttf', 15)
-font_input_login_1 = pygame.font.Font('BinggraeTaom-Bold.ttf', 100)
-font_input_login_2 = pygame.font.Font('BinggraeTaom-Bold.ttf', 30)
-font_input_login_3 = pygame.font.Font('BinggraeTaom-Bold.ttf', 50)
-font_input_login_4 = pygame.font.Font('BinggraeTaom-Bold.ttf', 20)
-font_input_login_5 = pygame.font.Font('BinggraeTaom-Bold.ttf', 15)
-font_input_login_6 = pygame.font.Font('BinggraeTaom-Bold.ttf', 30)
-font_input_logging_in = pygame.font.Font('BinggraeTaom-Bold.ttf', 35)
-font_input_signup_1 = pygame.font.Font('BinggraeTaom-Bold.ttf', 80)
-font_input_signup_2 = pygame.font.Font('BinggraeTaom-Bold.ttf', 20)
-font_input_signup_3 = pygame.font.Font('BinggraeTaom-Bold.ttf', 30)
-font_input_signup_4 = pygame.font.Font('BinggraeTaom-Bold.ttf', 20)
-font_input_signup_5 = pygame.font.Font('BinggraeTaom-Bold.ttf', 15)
-font_input_signup_6 = pygame.font.Font('BinggraeTaom-Bold.ttf', 20)
-font_input_signup_7 = pygame.font.Font('BinggraeTaom-Bold.ttf', 25)
+font_input_L = pygame.font.Font("BinggraeTaom-Bold.ttf", 50)
+font_input_M = pygame.font.Font("BinggraeTaom-Bold.ttf", 35)
+font_input_S = pygame.font.Font("BinggraeTaom-Bold.ttf", 25)
+font_input_subscript = pygame.font.Font("BinggraeTaom-Bold.ttf", 15)
+font_input_login_1 = pygame.font.Font("BinggraeTaom-Bold.ttf", 100)
+font_input_login_2 = pygame.font.Font("BinggraeTaom-Bold.ttf", 30)
+font_input_login_3 = pygame.font.Font("BinggraeTaom-Bold.ttf", 50)
+font_input_login_4 = pygame.font.Font("BinggraeTaom-Bold.ttf", 20)
+font_input_login_5 = pygame.font.Font("BinggraeTaom-Bold.ttf", 15)
+font_input_login_6 = pygame.font.Font("BinggraeTaom-Bold.ttf", 30)
+font_input_logging_in = pygame.font.Font("BinggraeTaom-Bold.ttf", 35)
+font_input_signup_1 = pygame.font.Font("BinggraeTaom-Bold.ttf", 80)
+font_input_signup_2 = pygame.font.Font("BinggraeTaom-Bold.ttf", 20)
+font_input_signup_3 = pygame.font.Font("BinggraeTaom-Bold.ttf", 30)
+font_input_signup_4 = pygame.font.Font("BinggraeTaom-Bold.ttf", 20)
+font_input_signup_5 = pygame.font.Font("BinggraeTaom-Bold.ttf", 15)
+font_input_signup_6 = pygame.font.Font("BinggraeTaom-Bold.ttf", 20)
+font_input_signup_7 = pygame.font.Font("BinggraeTaom-Bold.ttf", 25)
+font_input_search_1 = pygame.font.Font("BinggraeTaom-Bold.ttf", 20)
+font_input_search_2 = pygame.font.Font("BinggraeTaom-Bold.ttf", 15)
+font_input_search_3 = pygame.font.Font("BinggraeTaom-Bold.ttf", 25)
+font_input_search_4 = pygame.font.Font("BinggraeTaom-Bold.ttf", 15)
+font_input_search_5 = pygame.font.Font("BinggraeTaom-Bold.ttf", 30)
 
 pygame.display.set_caption("Let's_go_to_college")
 
 clock = pygame.time.Clock()
 
-input_log = select(0, '-', 0.1, 0, 0)
+input_log = select(0, "-")
+sensitivity = 0.9
+
+
+def cosine_similarity(a, b):
+    return dot(a, b) / (norm(a) * norm (b))
+
+
+def make_matrix(feats, list_data):
+    freq_list = []
+    for feat in feats:
+        freq = 0
+        for word in list_data:
+            if feat == word:
+                freq += 1
+        freq_list.append(freq)
+    return freq_list
 
 
 def search(input):
-    '''
-    input_result = input.split()
+    input_log.plag = 17
 
-    input_log.value_1, input_log.value_2, input_log.value_3 = 0, 0, 0
+    search_split = input.split()
 
-    search_plag = 0
-    while search_plag < 3:
-        i = 0
-        while True:
-            i += 1
+    search_list = []
+    y_k_list_0, y_k_list_1, y_k_list_2, y_k_list_3, y_k_list_4  = [], [], [], [], []
+
+    i = 0
+    while True:
+        try:
             j = 0
-            try:
-                while True:
-                    if input_result[j] == csv_data[i][search_plag]:
-                        if search_plag == 0:
-                            input_log.value_1 = i
-                        elif search_plag == 1:
-                            input_log.value_2 = i
-                        elif search_plag == 2:
-                            input_log.value_3 = i
+            search_split_list = list(search_split[i])
+            while j <= 4:
+                try:
+                    k = 1
+                    while True:
+                        try:
+                            csv_list = list(csv_data[k][j])
+                            append_list = search_split_list + csv_list
+
+                            feats = set(append_list)
+
+                            search_split_list_arr = np.array(make_matrix(feats, search_split_list))
+                            csv_list_arr = np.array(make_matrix(feats, csv_list))
+
+                            cosine = cosine_similarity(search_split_list_arr, csv_list_arr)
+
+                            if cosine > sensitivity:
+                                if j == 0:
+                                    y_k_list_0.append(k)
+                                if j == 1:
+                                    y_k_list_1.append(k)
+                                if j == 2:
+                                    y_k_list_2.append(k)
+                                if j == 3:
+                                    y_k_list_3.append(k)
+                                if j == 4:
+                                    y_k_list_4.append(k)
+                            k += 1
+                        except:
+                            break
                     j += 1
-            except:
-                break
+                except:
+                    break
+            i += 1
+        except:
+            break
 
-        if search_plag == 0 and input_log.value_1 == 0:
-            search_plag += 1
+    y_k_count = 0
 
-        search_plag += 1
-    '''
+    if y_k_count == 0:
+        if len(y_k_list_4) != 0:
+            if len(y_k_list_3) != 0:
+                y_k_list_3 = list(set(y_k_list_3).intersection(y_k_list_4))
+                if len(y_k_list_3) == 0:
+                    y_k_count += 1
+            else:
+                y_k_list_3 = y_k_list_4
+
+    if y_k_count == 0:
+        if len(y_k_list_3) != 0:
+            if len(y_k_list_2) != 0:
+                y_k_list_2 = list(set(y_k_list_2).intersection(y_k_list_3))
+                if len(y_k_list_2) == 0:
+                    y_k_count += 1
+            else:
+                y_k_list_2 = y_k_list_3
+
+    if y_k_count == 0:
+        if len(y_k_list_2) != 0:
+            if len(y_k_list_1) != 0:
+                y_k_list_1 = list(set(y_k_list_1).intersection(y_k_list_2))
+                if len(y_k_list_1) == 0:
+                    y_k_count += 1
+            else:
+                y_k_list_1 = y_k_list_2
+
+    if y_k_count == 0:
+        if len(y_k_list_1) != 0:
+            if len(y_k_list_0) != 0:
+                y_k_list_0 = list(set(y_k_list_0).intersection(y_k_list_1))
+                if len(y_k_list_0) == 0:
+                    y_k_count += 1
+            else:
+                y_k_list_0 = y_k_list_1
+
+    if y_k_count != 0:
+        y_k_list_0 = []
+
+    for i in y_k_list_0:
+        search_list.append(csv_data[i])
+
+    show_count = 4
+
+    if len(search_list) != 0:
+        max_page = (len(search_list) // show_count) + 1
+    else:
+        max_page = 0
+
+    last_page = len(search_list) % show_count
+
+    if last_page == 0:
+        max_page -= 1
+        last_page = show_count
+
+    now_page = 1
+
+    input_1 = ""
+    while 17 <= input_log.plag <= 19:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                input_log.plag = 17
+                if 100 <= pos[0] <= 680:
+                    if 43 <= pos[1] <= 113:
+                        input_log.plag = 18
+                if 680 <= pos[0] <= 750:
+                    if 43 <= pos[1] <= 133:
+                        if len(input_1) != 0:
+                            input_log.plag = 20
+                if 750 <= pos[0] <= 900:
+                    if 0 <= pos[1] <= 150:
+                        input_log.plag = 21
+                if 410 <= pos[0] <= 440:
+                    if 670 <= pos[1] <= 700:
+                        if now_page != 1:
+                            now_page -= 1
+                if 560 <= pos[0] <= 590:
+                    if 670 <= pos[1] <= 700:
+                        if now_page != max_page:
+                            now_page += 1
+            elif event.type == KEYDOWN:
+                if event.unicode.isalpha():
+                    if input_log.plag == 18:
+                        if len(input_1) <= 22:
+                            input_1 += event.unicode
+                elif event.key == K_SPACE:
+                    if input_log.plag == 18:
+                        if len(input_1) <= 22:
+                            input_1 += " "
+                elif event.key == K_BACKSPACE:
+                    if input_log.plag == 18:
+                        input_1 = input_1[:-1]
+                elif event.key == K_RETURN:
+                    if input_log.plag == 18:
+                        if len(input_1) != 0:
+                            input_log.plag = 20
+            elif event.type == QUIT:
+                return
+
+        screen.fill(white)
+
+        screen.blit(image_3, [750, 0])
+        pygame.draw.polygon(screen, blue, [[0, 0], [0, 250], [250, 0]], 0)
+        pygame.draw.rect(screen, beige, [100, 43, 580, 70], 0)
+        pygame.draw.rect(screen, blue, [100, 43, 650, 70], 5)
+        pygame.draw.rect(screen, blue, [680, 43, 70, 70], 0)
+        pygame.draw.rect(screen, gray, [0, 760, 1000, 40], 0)
+        pygame.draw.line(screen, black, [0, 757], [1000, 757], 3)
+        pygame.draw.line(screen, white, [722, 85], [743, 106], 8)
+        pygame.draw.circle(screen, white, [715, 78], 25, 5)
+
+        page = 0
+        if now_page < max_page:
+            page = show_count
+        elif now_page == max_page:
+            if last_page != 0:
+                page = last_page
+            elif last_page == 0:
+                page = show_count
+
+        pygame.draw.rect(screen, beige, [100, 170, 800, 110 * page], 0)
+        if page >= 1:
+            pygame.draw.rect(screen, black, [100, 170, 800, 110], 2)
+        if page >= 2:
+            pygame.draw.rect(screen, black, [100, 280, 800, 110], 2)
+        if page >= 3:
+            pygame.draw.rect(screen, black, [100, 390, 800, 110], 2)
+        if page >= 4:
+            pygame.draw.rect(screen, black, [100, 500, 800, 110], 2)
+        if page >= 5:
+            pygame.draw.rect(screen, black, [100, 610, 800, 110], 2)
+
+        for i in range(0, page):
+            search_text_1 = font_input_search_3.render("대학명: " + search_list[((now_page - 1) * show_count) + i][0] + \
+                                                       " (" + search_list[((now_page - 1) * show_count) + i][1] + \
+                                                       ")   [" + search_list[((now_page - 1) * show_count) + i][3] + \
+                                                       "]", True, black)
+            screen.blit(search_text_1, [120, 190 + (110 * i)])
+            search_text_2 = font_input_search_3.render("   학과: " + search_list[((now_page - 1) * show_count) + i][2] + \
+                                                       "    전형명: " + search_list[((now_page - 1) * show_count) + i][4], True, black)
+            rect_search_text_2 = search_text_2.get_rect()
+            rect_search_text_2.bottomleft = (120, 260 + (110 * i))
+            screen.blit(search_text_2, rect_search_text_2)
+
+        text_1 = font_input_subscript.render("POWERED BY PYTHON3.6 | MADE BY JG IN SEOUL", True, sky_blue)
+        screen.blit(text_1, [10, 770])
+
+        text_2 = font_input_subscript.render("ver." + ver, True, sky_blue)
+        rect_text_2 = text_2.get_rect()
+        rect_text_2.topright = (990, 770)
+        screen.blit(text_2, rect_text_2)
+
+        if len(input_1) <= 12:
+            input_1_text = font_input_L.render(input_1, True, blue)
+        elif len(input_1) <= 18:
+            input_1_text = font_input_M.render(input_1, True, blue)
+        else:
+            input_1_text = font_input_S.render(input_1, True, blue)
+        rect_input_1_text = input_1_text.get_rect()
+        rect_input_1_text.center = ((screen_width / 2) - 110, 75)
+        screen.blit(input_1_text, rect_input_1_text)
+
+        if len(input) <= 16:
+            search_input_text_1 = font_input_search_1.render(input + "의 검색결과 입니다. (검색결과 " + str(len(search_list)) + "건)", True, gray)
+        else:
+            search_input_text_1 = font_input_search_2.render(input + "의 검색결과 입니다. (검색결과 " + str(len(search_list)) + "건)", True, gray)
+        screen.blit(search_input_text_1, [130, 120])
+
+        search_input_text_3 = font_input_search_4.render("자세히 보려면 클릭하세요.", True, gray)
+        rect_search_input_text_3 = search_input_text_3.get_rect()
+        rect_search_input_text_3.topright = (900, (175 + (110 * page)))
+        screen.blit(search_input_text_3, rect_search_input_text_3)
+
+        if len(search_list) != 0:
+            pygame.draw.rect(screen, gray, [390, 650, 220, 70], 0)
+
+            search_input_text_4 = font_input_search_5.render(str(now_page) + "/" + str(max_page), True, white)
+            rect_search_input_text_4 = search_input_text_4.get_rect()
+            rect_search_input_text_4.center = (screen_width / 2, 685)
+            screen.blit(search_input_text_4, rect_search_input_text_4)
+
+        if now_page != 1:
+            pygame.draw.polygon(screen, white, [[440, 670], [440, 700], [410, 685]], 0)
+        if now_page != max_page:
+            pygame.draw.polygon(screen, white, [[560, 670], [560, 700], [590, 685]], 0)
+
+        if len(search_list) == 0:
+            search_error_text = font_input_search_4.render("검색결과가 없습니다.", True, gray)
+            rect_search_error_text = search_error_text.get_rect()
+            rect_search_error_text.center = (screen_width / 2, 400)
+            screen.blit(search_error_text, rect_search_error_text)
+        pygame.display.update()
+
+    if input_log.plag == 20:
+        search(input_1)
+    elif input_log.plag == 21:
+        main()
 
 
 def registration(name, identification, password_1, password_2):
@@ -114,11 +355,11 @@ def registration(name, identification, password_1, password_2):
     i = 0
     try:
         while True:
-            if 'a' <= password_1_lsit[i] <= 'z':
+            if "a" <= password_1_lsit[i] <= "z":
                 pass
-            elif 'A' <= password_1_lsit[i] <= 'Z':
+            elif "A" <= password_1_lsit[i] <= "Z":
                 pass
-            elif '0' <= password_1_lsit[i] <= '9':
+            elif "0" <= password_1_lsit[i] <= "9":
                 pass
             else:
                 input_log.plag = 13
@@ -129,9 +370,9 @@ def registration(name, identification, password_1, password_2):
     i = 0
     try:
         while True:
-            if 'a' <= password_2_lsit[i] <= 'z':
+            if "a" <= password_2_lsit[i] <= "z":
                 pass
-            elif 'A' <= password_2_lsit[i] <= 'Z':
+            elif "A" <= password_2_lsit[i] <= "Z":
                 pass
             elif 0 <= password_2_lsit[i] <= 9:
                 pass
@@ -150,7 +391,7 @@ def registration(name, identification, password_1, password_2):
     i = 0
     try:
         while True:
-            if identification_list[i] == '@':
+            if identification_list[i] == "@":
                 if count == 0:
                     count = 1
                 else:
@@ -160,8 +401,8 @@ def registration(name, identification, password_1, password_2):
         pass
 
     try:
-        if identification_list[-4] == '.' and identification_list[-3] == 'c' and \
-                identification_list[-2] == 'o' and identification_list[-1] == 'm':
+        if identification_list[-4] == "." and identification_list[-3] == "c" and \
+                identification_list[-2] == "o" and identification_list[-1] == "m":
             if count == 1:
                 count = 2
     except:
@@ -188,16 +429,16 @@ def registration(name, identification, password_1, password_2):
     except:
         pass
 
-    if name == 'ADMIN':
+    if name == "ADMIN":
         input_log.plag = 8
 
     if input_log.plag == 3:
-        f = open('login_data.csv', 'a', newline = '')
+        f = open("login_data.csv", "a", newline = "")
         wr = csv.writer(f)
-        wr.writerow([name, identification, password_1, ''])
+        wr.writerow([name, identification, password_1, ""])
         f.close()
 
-        login_data.append([name, identification, password_1, ''])
+        login_data.append([name, identification, password_1, ""])
 
 
 def signup():
@@ -228,7 +469,7 @@ def signup():
                             input_log.plag = 3
                         else:
                             input_log.plag = 0
-                            login('signup')
+                            login("signup")
                     elif 660 <= pos[1] <= 700:
                         input_log.plag = 0
             if event.type == KEYDOWN:
@@ -249,19 +490,19 @@ def signup():
                         input_log.plag = 3
                     else:
                         input_log.plag = 0
-                        login('signup')
+                        login("signup")
                 else:
                     if input_log.plag == 4:
-                        if len(name) <= 42:
+                        if len(name) <= 22:
                             name += event.unicode
                     elif input_log.plag == 5:
-                        if len(identification) <= 42:
+                        if len(identification) <= 22:
                             identification += event.unicode
                     elif input_log.plag == 6:
-                        if len(password_1) <= 40:
+                        if len(password_1) <= 22:
                             password_1 += event.unicode
                     elif input_log.plag == 7:
-                        if len(password_2) <= 40:
+                        if len(password_2) <= 22:
                             password_2 += event.unicode
             if event.type == QUIT:
                 return
@@ -279,17 +520,17 @@ def signup():
         pygame.draw.rect(screen, black, [200, 660, 600, 40], 1)
         pygame.draw.line(screen, black, [0, 757], [1000, 757], 3)
 
-        signup_identification_text = font_input_signup_7.render(name, True, blue)
-        screen.blit(signup_identification_text, [215, 265])
+        signup_identification_text_1 = font_input_signup_7.render(name, True, blue)
+        screen.blit(signup_identification_text_1, [215, 265])
 
-        signup_identification_text = font_input_signup_7.render(identification, True, blue)
-        screen.blit(signup_identification_text, [215, 345])
+        signup_identification_text_2 = font_input_signup_7.render(identification, True, blue)
+        screen.blit(signup_identification_text_2, [215, 345])
 
-        signup_password_text = font_input_signup_7.render(len(password_1) * '*', True, blue)
-        screen.blit(signup_password_text, [215, 425])
+        signup_password_1_text = font_input_signup_7.render(len(password_1) * "*", True, blue)
+        screen.blit(signup_password_1_text, [215, 425])
 
-        signup_password_text = font_input_signup_7.render(len(password_2) * '*', True, blue)
-        screen.blit(signup_password_text, [215, 505])
+        signup_password_2_text = font_input_signup_7.render(len(password_2) * "*", True, blue)
+        screen.blit(signup_password_2_text, [215, 505])
 
         text_1 = font_input_subscript.render("POWERED BY PYTHON3.6 | MADE BY JG IN SEOUL", True, sky_blue)
         screen.blit(text_1, [10, 770])
@@ -300,7 +541,9 @@ def signup():
         screen.blit(text_2, rect_text_2)
 
         signup_text_1 = font_input_signup_1.render("SIGNUP", True, black)
-        screen.blit(signup_text_1, [460, 80])
+        rect_signup_text_1 = signup_text_1.get_rect()
+        rect_signup_text_1.midright = (755, 130)
+        screen.blit(signup_text_1, rect_signup_text_1)
 
         signup_text_2 = font_input_signup_2.render("Your name", True, black)
         screen.blit(signup_text_2, [200, 230])
@@ -415,9 +658,9 @@ def logging_in():
         rect_text_2.topright = (990, 770)
         screen.blit(text_2, rect_text_2)
 
-        if count < 600:
+        if count < 650:
             logging_in_text_1 = font_input_logging_in.render("로그인중...", True, gray)
-        elif count > 650:
+        elif count > 700:
             logging_in_text_1 = font_input_logging_in.render("환영합니다. " + input_log.name + " 님", True, gray)
         else:
             logging_in_text_1 = font_input_logging_in.render("", True, gray)
@@ -432,18 +675,17 @@ def logging_in():
 
 
 def identify(identification, password):
+    if identification == "ADMIN":
+        if password == "ADMIN":
+            input_log.name = "관리자"
+            input_log.plag = 15
+
     i = 0
     try:
         while True:
-            print(identification, login_data[i][1])
-            print(identification == login_data[i][1])
-            print(password, login_data[i][2])
-            print(password == login_data[i][2])
             if identification == login_data[i][1]:
                 if password == login_data[i][2]:
                     input_log.name = login_data[i][0]
-                    if input_log.name == 'ADMIN':
-                        input_log.name = '개발자'
                     input_log.plag = 15
             i += 1
     except:
@@ -483,10 +725,10 @@ def login(access):
                         login_plag = 1
                 else:
                     if input_log.plag == 1:
-                        if len(identification) <= 28:
+                        if len(identification) <= 16:
                             identification += event.unicode
                     elif input_log.plag == 2:
-                        if len(password) <= 28:
+                        if len(password) <= 16:
                             password += event.unicode
             elif event.type == QUIT:
                 return
@@ -505,7 +747,7 @@ def login(access):
         identification_text = font_input_M.render(identification, True, blue)
         screen.blit(identification_text, [215, 330])
 
-        password_text = font_input_M.render(len(password) * '*', True, blue)
+        password_text = font_input_M.render(len(password) * "*", True, blue)
         screen.blit(password_text, [215, 465])
 
         text_1 = font_input_subscript.render("POWERED BY PYTHON3.6 | MADE BY JG IN SEOUL", True, sky_blue)
@@ -517,7 +759,9 @@ def login(access):
         screen.blit(text_2, rect_text_2)
 
         login_text_1 = font_input_login_1.render("LOGIN", True, black)
-        screen.blit(login_text_1, [460, 120])
+        rect_login_text_1 = login_text_1.get_rect()
+        rect_login_text_1.midright = (765, 170)
+        screen.blit(login_text_1, rect_login_text_1)
 
         login_text_2 = font_input_login_2.render("Email", True, black)
         screen.blit(login_text_2, [200, 280])
@@ -536,8 +780,8 @@ def login(access):
         screen.blit(login_text_6, rect_login_text_6)
 
         if login_plag == 1:
-            if access == 'main' or access == 'signup':
-                access = '-'
+            if access == "main" or access == "signup":
+                access = "-"
             login_text_7 = font_input_login_5.render("가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.", True, gray)
             rect_login_text_7 = login_text_7.get_rect()
             rect_login_text_7.center = (screen_width / 2, 535)
@@ -551,13 +795,13 @@ def login(access):
             login_text_9 = font_input_login_6.render("Enter password...", True, gray)
             screen.blit(login_text_9, [215, 465])
 
-        if access == 'main':
+        if access == "main":
             login_text_10 = font_input_login_5.render("정상적으로 로그아웃 되었습니다.", True, gray)
             rect_login_text_10 = login_text_10.get_rect()
             rect_login_text_10.center = (screen_width / 2, 535)
             screen.blit(login_text_10, rect_login_text_10)
 
-        if access == 'signup':
+        if access == "signup":
             login_text_10 = font_input_login_5.render("정상적으로 화원가입 되었습니다.", True, gray)
             rect_login_text_10 = login_text_10.get_rect()
             rect_login_text_10.center = (screen_width / 2, 535)
@@ -567,7 +811,7 @@ def login(access):
 
     if login_plag == 2:
         signup()
-        login('return')
+        login("return")
     else:
         logging_in()
 
@@ -575,7 +819,12 @@ def login(access):
 def main():
     clock.tick(20)
 
-    login('start')
+    search('성균관대학교')
+
+    if input_log.plag == 21:
+        input_log.plag = 16
+    else:
+        login("start")
 
     main_plag = 0
     input = ""
@@ -586,70 +835,71 @@ def main():
                 if 835 <= pos[0] <= 1000:
                     if 0 <= pos[1] <= 35:
                         main_plag = 1
+                if 830 <= pos[0] <= 900:
+                    if 568 <= pos[1] <= 638:
+                        main_plag = 2
             if event.type == KEYDOWN:
-                if event.key == K_SPACE:
-                    if len(input) <= 30:
+                if event.unicode.isalpha():
+                    if len(input) <= 26:
+                        input += event.unicode
+                elif event.key == K_SPACE:
+                    if len(input) <= 26:
                         input += " "
                 elif event.key == K_BACKSPACE:
                     input = input[:-1]
                 elif event.key == K_RETURN:
-                    search(input)
-                    input = ""
-                else:
-                    if len(input) <= 30:
-                        input += event.unicode
+                    main_plag = 2
             elif event.type == QUIT:
                 return
 
-        if input_log.plag == 16:
-            screen.fill(white)
+        screen.fill(white)
 
-            screen.blit(image_1, [290, 100])
-            pygame.draw.polygon(screen, blue, [[0, 0], [0, 250], [250, 0]], 0)
-            pygame.draw.rect(screen, gray, [0, 760, 1000, 40], 0)
-            pygame.draw.rect(screen, beige, [100, 568, 800, 70], 0)
-            pygame.draw.rect(screen, blue, [100, 568, 800, 70], 5)
-            pygame.draw.line(screen, black, [0, 757], [1000, 757], 3)
+        screen.blit(image_1, [290, 100])
+        pygame.draw.polygon(screen, blue, [[0, 0], [0, 250], [250, 0]], 0)
+        pygame.draw.rect(screen, gray, [0, 760, 1000, 40], 0)
+        pygame.draw.rect(screen, beige, [100, 568, 730, 70], 0)
+        pygame.draw.rect(screen, blue, [100, 568, 800, 70], 5)
+        pygame.draw.rect(screen, blue, [830, 568, 70, 70], 0)
+        pygame.draw.line(screen, black, [0, 757], [1000, 757], 3)
+        pygame.draw.line(screen, white, [872, 610], [893, 631], 8)
+        pygame.draw.circle(screen, white, [865, 603], 25, 5)
 
-            text_1 = font_input_subscript.render("POWERED BY PYTHON3.6 | MADE BY JG IN SEOUL", True, sky_blue)
-            screen.blit(text_1, [10, 770])
+        text_1 = font_input_subscript.render("POWERED BY PYTHON3.6 | MADE BY JG IN SEOUL", True, sky_blue)
+        screen.blit(text_1, [10, 770])
 
-            text_2 = font_input_subscript.render("ver." + ver, True, sky_blue)
-            rect_text_2 = text_2.get_rect()
-            rect_text_2.topright = (990, 770)
-            screen.blit(text_2, rect_text_2)
+        text_2 = font_input_subscript.render("ver." + ver, True, sky_blue)
+        rect_text_2 = text_2.get_rect()
+        rect_text_2.topright = (990, 770)
+        screen.blit(text_2, rect_text_2)
 
-            account_text = font_input_subscript.render(input_log.name + " 님 환영합니다.", True, gray)
-            rect_account_text = account_text.get_rect()
-            rect_account_text.topright = (990, 10)
-            screen.blit(account_text, rect_account_text)
+        account_text = font_input_subscript.render(input_log.name + " 님 환영합니다.", True, gray)
+        rect_account_text = account_text.get_rect()
+        rect_account_text.topright = (990, 10)
+        screen.blit(account_text, rect_account_text)
 
-            if len(input) <= 14:
-                input_text = font_input_L.render(input, True, blue)
-            elif len(input) <= 22:
-                input_text = font_input_M.render(input, True, blue)
-            else:
-                input_text = font_input_S.render(input, True, blue)
-            rect_input_text = input_text.get_rect()
-            rect_input_text.center = (screen_width / 2, 600)
-            screen.blit(input_text, rect_input_text)
+        if len(input) <= 14:
+            input_text = font_input_L.render(input, True, blue)
+        elif len(input) <= 20:
+            input_text = font_input_M.render(input, True, blue)
+        else:
+            input_text = font_input_S.render(input, True, blue)
+        rect_input_text = input_text.get_rect()
+        rect_input_text.center = ((screen_width / 2) - 35, 600)
+        screen.blit(input_text, rect_input_text)
 
-            main_text_1 = font_input_S.render("검색어를 입력하세요.", True, gray)
-            rect_main_text_1 = main_text_1.get_rect()
-            rect_main_text_1.center = (screen_width / 2, 545)
-            screen.blit(main_text_1, rect_main_text_1)
-
-            if input_log.value_1 == 0 and input_log.value_2 == 0 and input_log.value_3 == 0:
-                error_text = font_input_subscript.render("검색결과가 없습니다.", True, gray)
-                rect_error_text = error_text.get_rect()
-                rect_error_text.center = (screen_width / 2, 670)
-                screen.blit(error_text, rect_error_text)
+        main_text_1 = font_input_S.render("검색어를 입력하세요.", True, gray)
+        rect_main_text_1 = main_text_1.get_rect()
+        rect_main_text_1.center = ((screen_width / 2), 545)
+        screen.blit(main_text_1, rect_main_text_1)
 
         pygame.display.update()
 
         if main_plag == 1:
             input_log.plag = 0
-            login('main')
+            login("main")
+        if main_plag == 2:
+            if len(input) != 0:
+                search(input)
 
 
 if __name__ == "__main__":
