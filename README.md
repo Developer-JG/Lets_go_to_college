@@ -13,11 +13,11 @@ lastest Renewals : 2020/6/1
 2020
 
 June
-01 21w22a
-02 21w22b
-06 21w23a
-08 21w23b
-
+01 21w22a (Developer Beta v.1)
+02 21w22b (Developer Beta v.2)
+06 21w23a (Developer Beta v.3)
+08 21w23b (Developer Beta v.4)
+10 21w23c (Golden master build)
 ```
 
 # Licence
