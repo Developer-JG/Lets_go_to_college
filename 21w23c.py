@@ -1077,6 +1077,7 @@ def main():
     input_log.plag = 16
 
     main_plag = 0
+    search_history_plag = -1
     input = ""
     while input_log.plag == 16:
         for event in pygame.event.get():
@@ -1090,6 +1091,31 @@ def main():
                         main_plag = 2
                 if 0 <= pos[0] + pos[1] <= 250:
                         input_log.plag = 24
+                if len(input_log.search_history) >= 1:
+                    if 530 <= pos[0] <= 850:
+                        if 195 <= pos[1] <= 250:
+                            main_plag = 2
+                            search_history_plag = 0
+                if len(input_log.search_history) >= 2:
+                    if 530 <= pos[0] <= 850:
+                        if 250 <= pos[1] <= 305:
+                            main_plag = 2
+                            search_history_plag = 1
+                if len(input_log.search_history) >= 3:
+                    if 530 <= pos[0] <= 850:
+                        if 305 <= pos[1] <= 360:
+                            main_plag = 2
+                            search_history_plag = 2
+                if len(input_log.search_history) >= 4:
+                    if 530 <= pos[0] <= 850:
+                        if 360 <= pos[1] <= 415:
+                            main_plag = 2
+                            search_history_plag = 3
+                if len(input_log.search_history) >= 5:
+                    if 530 <= pos[0] <= 850:
+                        if 415 <= pos[1] <= 470:
+                            main_plag = 2
+                            search_history_plag = 4
             if event.type == KEYDOWN:
                 if event.unicode.isalpha():
                     if len(input) <= 26:
@@ -1226,7 +1252,7 @@ def main():
                 if history_plag == 0:
                     rect_main_history_text_2.midtop = ((screen_width / 2) + 190, 475)
                 elif history_plag == 1:
-                    rect_main_history_text_2.midtop = ((screen_width / 2) + 190, 480)
+                    rect_main_history_text_2.midtop = ((screen_width / 2) + 190, 430)
                 screen.blit(main_history_text_2, rect_main_history_text_2)
 
         pygame.display.update()
@@ -1236,9 +1262,10 @@ def main():
             input_log.search_history = []
             login("main")
         if main_plag == 2:
-            if len(input) != 0:
+            if len(input) != 0 and search_history_plag == -1:
                 search(input)
-
+            if 0 <= search_history_plag <= 4:
+                search(input_log.search_history[search_history_plag])
         if input_log.plag == 24:
             cradit()
             if input_log.plag == 25:
