@@ -1074,8 +1074,6 @@ def main():
     else:
         login("start")
 
-    input_log.plag = 16
-
     main_plag = 0
     search_history_plag = -1
     input = ""
