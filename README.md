@@ -5,12 +5,12 @@
 
 #### College entrance exam information search engine
 
-lastest Renewals : 2020/6/1
+lastest Renewals : 2021/6/10
 
 # History
 
 ```
-2020
+2021
 
 June
 01 21w22a [0.1]
